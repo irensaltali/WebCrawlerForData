@@ -24,6 +24,7 @@ public class DatabaseBL {
 	
 	static DatabaseBL instance;
 	UrlParsing urlParsing;
+	private String protocol = "http";
 	private String host = "www.idefix.com";
 	
 	//  Database settings
@@ -79,6 +80,7 @@ public class DatabaseBL {
 	        		+ "`parsed` BIT NULL DEFAULT b'0',"
 	        		+ "`crawled` BIT NULL DEFAULT b'0',"
 	        		+ "`availability` BIT NULL DEFAULT b'0',"
+	        		+ "`error` VARCHAR(500) NOT NULL DEFAULT '',"
 	        		+ "PRIMARY KEY (`id`)"
 	        		+ ")"
 	        		+ "COMMENT='This table contains all url that extracted from related sites.'"
@@ -87,6 +89,7 @@ public class DatabaseBL {
 
 
 	        stmt.executeUpdate(sql);
+	        AddInitialUrlToTable();
 	    } catch (SQLException se) {
 	        //Handle errors for JDBC
 	        se.printStackTrace();
@@ -119,6 +122,35 @@ public class DatabaseBL {
 		        e.printStackTrace();
 		    } 
 		}
+	}
+	
+	public void AddInitialUrlToTable() {
+
+		Statement stmt = null;	
+	    try {
+	        stmt = conn.createStatement();
+	        
+
+	        String sql = "INSERT INTO `webcrawlerDB`.`url` ("
+	        		+ "`protocol`"
+	        		+ ", `host`"
+	        		+", `creationtime`"
+	        		+", `validity`"
+	        		+ ") VALUES ("
+	        		+ "'"+protocol+"'"
+	        		+ ", '"+host+"'"
+	        		+", '"+new Timestamp(System.currentTimeMillis())+"'"
+	        		+", 1"
+	        		+")";
+
+	        stmt.executeQuery(sql);
+	        
+	    } catch (SQLException se) {
+	        //Handle errors for JDBC
+	        se.printStackTrace();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 	
 	public void AddUrlToTable(URL url) {
@@ -164,7 +196,7 @@ public class DatabaseBL {
 	        stmt = conn.createStatement();
 
 	        String sql = "SELECT * FROM `webcrawlerDB`.`url` WHERE "
-	        		+ "crawled=0";
+	        		+ "crawled=0 and error=''";
 
 	        
 	        ResultSet result = stmt.executeQuery(sql);
@@ -178,7 +210,8 @@ public class DatabaseBL {
 	        			result.getBoolean("validity"),
 	        			result.getBoolean("parsed"),
 	        			result.getBoolean("crawled"),
-	        			result.getBoolean("availability")	        			
+	        			result.getBoolean("availability"),
+	        			result.getString("error")      			
 	        			);
 	        	return url;
 	        }
@@ -198,6 +231,23 @@ public class DatabaseBL {
 	        stmt = conn.createStatement();
 
 	        String sql = "UPDATE `webcrawlerDB`.`url` SET `crawled`=b'1' WHERE  `id`="+id;
+
+	        stmt.executeUpdate(sql);
+	        	
+	    } catch (SQLException se) {
+	        //Handle errors for JDBC
+	        se.printStackTrace();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    } 
+	}
+	
+	public void MarkAsReturnedError(int id, String error) {
+		Statement stmt = null;	
+	    try {
+	        stmt = conn.createStatement();
+
+	        String sql = "UPDATE `webcrawlerDB`.`url` SET `error`='"+error+"' WHERE  `id`="+id;
 
 	        stmt.executeUpdate(sql);
 	        	

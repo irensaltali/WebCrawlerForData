@@ -22,7 +22,7 @@ public class UrlParsing {
 		
 		if(!url.getHost().equals(host))
 			return false;
-		else if(url.getPath().indexOf("/Kitap/")<0)
+		else if(url.getPath().indexOf("/not/")<0)
 			return false;
 		else 
 			return true;
@@ -32,7 +32,7 @@ public class UrlParsing {
 		try {
 			if(url.indexOf("http")>=0)
 				return new URL(url);
-			else if(url.length()<=1 || url.indexOf("#")==0 || url.indexOf("javascript:;")>=0)
+			else if(url.length()<=1 || url.indexOf("#")==0 || url.indexOf("javascript:")>=0 || url.indexOf("mailto:")>=0)
 				return null;
 			else if(url.indexOf("/")==0 || url.indexOf("\\")==0)
 				return new URL(protocol+"://"+host+url);

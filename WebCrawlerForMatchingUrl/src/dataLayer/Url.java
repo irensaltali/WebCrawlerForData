@@ -20,9 +20,10 @@ public class Url {
 	private boolean parsed;
 	private boolean crawled;
 	private boolean availability;
+	private String error;
 	
 	public Url(int id, String protocol, String host, String path, String query, Date creationtime, boolean validity,
-			boolean parsed, boolean crawled, boolean availability) {
+			boolean parsed, boolean crawled, boolean availability, String error) {
 		super();
 		this.id = id;
 		this.protocol = protocol;
@@ -34,6 +35,7 @@ public class Url {
 		this.parsed = parsed;
 		this.crawled = crawled;
 		this.availability = availability;
+		this.error = error;
 	}
 	public int getId() {
 		return id;
@@ -94,6 +96,12 @@ public class Url {
 	}
 	public void setAvailability(boolean availability) {
 		this.availability = availability;
+	}
+	public String getError() {
+		return error;
+	}
+	public void setError(String error) {
+		this.error = error;
 	}
 	
 

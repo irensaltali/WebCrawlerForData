@@ -1,5 +1,7 @@
 package mainprocesses;
 
+import org.jsoup.Connection.Response;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,7 +32,7 @@ import javax.xml.crypto.Data;
  */
 public class Crawler {
 
-	private static String host="www.idefix.com";
+	private static String host="www.notedu.com";
 		
 	/**
 	 * 
@@ -41,6 +43,7 @@ public class Crawler {
 
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
 	public static void main(String[] args) {
 
@@ -51,13 +54,14 @@ public class Crawler {
 		//databaseBL.CreateNewUrlTable();
 		Url url = databaseBL.GetNextUrlToCrawle();
 		URL urlToAdd;
+		org.jsoup.Connection connection = null; 
 
 		while(url!=null) {
 			System.out.println("Crawling Url: " + url.toString());
-			Document doc;
+			Document doc=null;
 	        try {
-	            // need http protocol
-	            doc = Jsoup.connect(url.toString()).get();
+	        	connection = Jsoup.connect(url.toString());
+	            doc = connection.get();
 
 
 	            // get all links
@@ -72,8 +76,13 @@ public class Crawler {
 	            
 	            databaseBL.MarkAsCrawled(url.getId());
 
-	        } catch (IOException e) {
+	        }catch (HttpStatusException e) {
 	            e.printStackTrace();
+	            databaseBL.MarkAsReturnedError(url.getId(), ""+e.getStatusCode());
+	        } 
+	        catch (IOException e) {
+	            e.printStackTrace();
+	            databaseBL.MarkAsReturnedError(url.getId(), ""+e.getMessage());
 	        }
 	        
 	        
